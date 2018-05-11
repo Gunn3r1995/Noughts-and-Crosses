@@ -19,7 +19,7 @@ class BoardGUI(Canvas):
         print("Reset")
         self.player = "X"
         self.delete("all")
-        self.grid = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+        self.grid = [None for i in range(9)]
         self.draw_grid_lines()
 
     def draw_grid_lines(self):
@@ -87,7 +87,7 @@ class BoardGUI(Canvas):
         self.grid[playable_places[move]] = "O"
 
     def get_playable_places(self):
-        return [x for x in self.grid if isinstance(x, numbers.Number)]
+        return [k for k, v in enumerate(self.grid) if v is None]
 
     def get_cells(self, player):
         return [k for k, v in enumerate(self.grid) if v == player]

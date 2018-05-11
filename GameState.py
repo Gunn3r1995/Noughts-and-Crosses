@@ -1,33 +1,33 @@
 import random
 
 
-class GameBoard(object):
+class GameState(object):
     win_lines = ([0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6])
     outcomes = ("X", "Draw", "O")
 
-    def __init__(self, squares=[]):
-        if len(squares) == 0:
-            self.squares = [None for i in range(9)]
+    def __init__(self, cells=[]):
+        if len(cells) == 0:
+            self.cells = [None for i in range(9)]
         else:
-            self.squares = squares
+            self.cells = cells
 
     def show(self):
-        for element in [self.squares[i:i + 3] for i in range(0, len(self.squares), 3)]:
+        for element in [self.cells[i:i + 3] for i in range(0, len(self.cells), 3)]:
             print(element)
 
-    def playable_cells(self):
+    def available_moves(self):
         """what spots are left empty?"""
-        return [k for k, v in enumerate(self.squares) if v is None]
+        return [k for k, v in enumerate(self.cells) if v is None]
 
     def available_combos(self, player):
         """what combos are available?"""
-        return self.playable_cells() + self.get_squares(player)
+        return self.available_moves() + self.get_squares(player)
 
     def complete(self):
         """is the game over?"""
-        if None not in [v for v in self.squares]:
+        if None not in [v for v in self.cells]:
             return True
-        if self.winner() != None:
+        if self.winner() is not None:
             return True
         return False
 
@@ -38,7 +38,7 @@ class GameBoard(object):
         return self.winner() == 'O'
 
     def tied(self):
-        return self.complete() == True and self.winner() is None
+        return self.complete() and self.winner() is None
 
     def winner(self):
         for player in ('X', 'O'):
@@ -54,27 +54,27 @@ class GameBoard(object):
 
     def get_squares(self, player):
         """squares that belong to a player"""
-        return [k for k, v in enumerate(self.squares) if v == player]
+        return [k for k, v in enumerate(self.cells) if v == player]
 
     def make_move(self, position, player):
         """place on square on the board"""
-        self.squares[position] = player
+        self.cells[position] = player
 
     def get_random_playable_place(self):
-        return random.randint(0, len(self.playable_cells()) - 1)
+        return random.randint(0, len(self.available_moves()) - 1)
 
-    def alphabeta(self, cell, player, alpha, beta):
-        if cell.complete():
-            if cell.X_won():
+    def alphabeta(self, node, player, alpha, beta):
+        if node.complete():
+            if node.X_won():
                 return -1
-            elif cell.tied():
+            elif node.tied():
                 return 0
-            elif cell.O_won():
+            elif node.O_won():
                 return 1
-        for move in cell.playable_cells():
-            cell.make_move(move, player)
-            val = self.alphabeta(cell, switch_player(player), alpha, beta)
-            cell.make_move(move, None)
+        for move in node.available_moves():
+            node.make_move(move, player)
+            val = self.alphabeta(node, get_enemy(player), alpha, beta)
+            node.make_move(move, None)
             if player == 'O':
                 if val > alpha:
                     alpha = val
@@ -91,7 +91,7 @@ class GameBoard(object):
             return beta
 
 
-def switch_player(player):
+def get_enemy(player):
     if player == "X":
         return "O"
-    return "O"
+    return "X"
