@@ -222,7 +222,7 @@ def winner(player):
 
 
 def difficulty_option_clicked(*args):
-    grid.reset()
+    reset()
     global friends
     if difficulty.get() == "Play against a friend":
         friends = TRUE
