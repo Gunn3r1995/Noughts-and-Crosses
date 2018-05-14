@@ -183,10 +183,6 @@ def impossible_next_move(cell):
     grid.grid[move] = "O"
     grid.draw_O(move)
 
-    print("===============")
-    actual_board.show()
-    print("===============")
-
     if actual_board.complete():
         check_winner()
         return

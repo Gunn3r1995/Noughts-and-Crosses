@@ -18,7 +18,6 @@ class GameState(object):
         return self.playable_cells() + self.get_cells(player)
 
     def complete(self):
-        """is the game over?"""
         if None not in [v for v in self.cells]:
             return True
         if self.winner() is not None:
@@ -26,55 +25,60 @@ class GameState(object):
         return False
 
     def X_won(self):
-        return self.winner() == 'X'
+        return self.winner() == "X"
 
     def O_won(self):
-        return self.winner() == 'O'
+        return self.winner() == "O"
 
     def tied(self):
         return self.complete() and self.winner() is None
 
     def winner(self):
-        for player in ('X', 'O'):
-            positions = self.get_cells(player)
+        for player in ("X", "O"):
+            played_cells = self.get_cells(player)
             for combo in self.win_lines:
                 win = True
-                for pos in combo:
-                    if pos not in positions:
+                for cell in combo:
+                    if cell not in played_cells:
                         win = False
                 if win:
                     return player
         return None
 
     def get_cells(self, player):
-        """squares that belong to a player"""
         return [k for k, v in enumerate(self.cells) if v == player]
 
-    def make_move(self, position, player):
-        """place on square on the board"""
-        self.cells[position] = player
+    def make_move(self, cell, player):
+        self.cells[cell] = player
 
     def get_random_playable_place(self):
         return random.randint(0, len(self.playable_cells()) - 1)
 
-    def alphabeta(self, node, player, alpha, beta):
-        if node.complete():
-            if node.X_won():
+    def alpha_beta(self, game_state, player, alpha, beta):
+        # Check game_state is complete
+        if game_state.complete():
+            if game_state.X_won():
                 return -1
-            elif node.tied():
+            elif game_state.tied():
                 return 0
-            elif node.O_won():
+            elif game_state.O_won():
                 return 1
-        for move in node.playable_cells():
-            node.make_move(move, player)
-            val = self.alphabeta(node, get_enemy(player), alpha, beta)
-            node.make_move(move, None)
+        # Get all playable cells and make all possible moves
+        for move in game_state.playable_cells():
+            # Make move
+            game_state.make_move(move, player)
+            # Continue to go deeper (Until complete)
+            val = self.alphabeta(game_state, swap_player(player), alpha, beta)
+            # Undo last move (for game_state)
+            game_state.make_move(move, None)
+            # Check if move is best value for AI
             if player == 'O':
                 if val > alpha:
                     alpha = val
                 if alpha >= beta:
                     return beta
             else:
+                # Check if move is worst value for Human
                 if val < beta:
                     beta = val
                 if beta <= alpha:
@@ -85,7 +89,8 @@ class GameState(object):
             return beta
 
 
-def get_enemy(player):
+def swap_player(player):
+    # Swap current player
     if player == "X":
         return "O"
     return "X"
