@@ -254,7 +254,7 @@ def calculate_best_move(board, player, return_all=False):
         return 4
     for move in board.playable_cells():
         board.make_move(move, player)
-        val = board.alphabeta(board, get_enemy(player), -2, 2)
+        val = board.minimax(board, get_enemy(player), -2, 2)
         board.make_move(move, None)
         print("move:", move + 1, "causes:", board.outcomes[val + 1])
         if val > a:

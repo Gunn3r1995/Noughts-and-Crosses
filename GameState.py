@@ -54,7 +54,7 @@ class GameState(object):
     def get_random_playable_place(self):
         return random.randint(0, len(self.playable_cells()) - 1)
 
-    def alpha_beta(self, game_state, player, alpha, beta):
+    def minimax(self, game_state, player, alpha, beta):
         # Check game_state is complete
         if game_state.complete():
             if game_state.X_won():
@@ -68,17 +68,17 @@ class GameState(object):
             # Make move
             game_state.make_move(move, player)
             # Continue to go deeper (Until complete)
-            val = self.alphabeta(game_state, swap_player(player), alpha, beta)
+            val = self.minimax(game_state, swap_player(player), alpha, beta)
             # Undo last move (for game_state)
             game_state.make_move(move, None)
-            # Check if move is best value for AI
+            # Check if move is best value for AI (Alpha-beta prune)
             if player == 'O':
                 if val > alpha:
                     alpha = val
                 if alpha >= beta:
                     return beta
             else:
-                # Check if move is worst value for Human
+                # Check if move is worst value for Human (Alpha-beta prune)
                 if val < beta:
                     beta = val
                 if beta <= alpha:
