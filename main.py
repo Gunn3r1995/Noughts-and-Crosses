@@ -88,7 +88,7 @@ def medium_next_move(cell):
         grid.draw_O(move)
     else:
         unwanted_moves = calculate_best_move(actual_board, "O", True)
-        available_moves = actual_board.available_moves()
+        available_moves = actual_board.playable_cells()
 
         for move in available_moves:
             if move in unwanted_moves:
@@ -140,7 +140,7 @@ def hard_next_move(cell):
         return
     else:
         unwanted_moves = calculate_best_move(actual_board, "O", True)
-        available_moves = actual_board.available_moves()
+        available_moves = actual_board.playable_cells()
 
         for move in available_moves:
             if move in unwanted_moves:
@@ -254,9 +254,9 @@ def get_enemy(player):
 def calculate_best_move(board, player, return_all=False):
     a = -2
     choices = []
-    if len(board.available_moves()) == 9:
+    if len(board.playable_cells()) == 9:
         return 4
-    for move in board.available_moves():
+    for move in board.playable_cells():
         board.make_move(move, player)
         val = board.alphabeta(board, get_enemy(player), -2, 2)
         board.make_move(move, None)

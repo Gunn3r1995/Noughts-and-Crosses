@@ -11,17 +11,11 @@ class GameState(object):
         else:
             self.cells = cells
 
-    def show(self):
-        for element in [self.cells[i:i + 3] for i in range(0, len(self.cells), 3)]:
-            print(element)
-
-    def available_moves(self):
-        """what spots are left empty?"""
-        return [k for k, v in enumerate(self.cells) if v is None]
+    def playable_cells(self):
+        return [i for i, j in enumerate(self.cells) if j is None]
 
     def available_combos(self, player):
-        """what combos are available?"""
-        return self.available_moves() + self.get_squares(player)
+        return self.playable_cells() + self.get_cells(player)
 
     def complete(self):
         """is the game over?"""
@@ -42,7 +36,7 @@ class GameState(object):
 
     def winner(self):
         for player in ('X', 'O'):
-            positions = self.get_squares(player)
+            positions = self.get_cells(player)
             for combo in self.win_lines:
                 win = True
                 for pos in combo:
@@ -52,7 +46,7 @@ class GameState(object):
                     return player
         return None
 
-    def get_squares(self, player):
+    def get_cells(self, player):
         """squares that belong to a player"""
         return [k for k, v in enumerate(self.cells) if v == player]
 
@@ -61,7 +55,7 @@ class GameState(object):
         self.cells[position] = player
 
     def get_random_playable_place(self):
-        return random.randint(0, len(self.available_moves()) - 1)
+        return random.randint(0, len(self.playable_cells()) - 1)
 
     def alphabeta(self, node, player, alpha, beta):
         if node.complete():
@@ -71,7 +65,7 @@ class GameState(object):
                 return 0
             elif node.O_won():
                 return 1
-        for move in node.available_moves():
+        for move in node.playable_cells():
             node.make_move(move, player)
             val = self.alphabeta(node, get_enemy(player), alpha, beta)
             node.make_move(move, None)
